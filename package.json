@@ -1,13 +1,12 @@
 {
     "name": "@rbxts/better-janitor",
     "description": "Stack-based implementation of the Janitor library.",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "main": "src/init.luau",
     "typings": "src/index.d.ts",
     "files": [
-        "src/"
+        "src"
     ],
-    "scripts": {},
     "repository": {
         "type": "git",
         "url": "git+https://github.com/mathfox/rbx-janitor.git"
@@ -24,6 +23,9 @@
         "url": "https://github.com/mathfox/rbx-janitor/issues"
     },
     "homepage": "https://github.com/mathfox/rbx-janitor#readme",
+    "publishConfig": {
+        "access": "public"
+    },
     "devDependencies": {
         "@rbxts/compiler-types": "^2.2.0-types.0",
         "@rbxts/types": "^1.0.743"
