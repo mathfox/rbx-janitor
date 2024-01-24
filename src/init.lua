@@ -273,19 +273,18 @@ function JanitorImpl:destroy()
     setmetatable((self :: any) :: {}, nil)
 end
 
-local JanitorLib = {}
-JanitorLib.prototype = JanitorImpl
+local Janitor = {}
 
-function JanitorLib.is(value)
+function Janitor.is(value)
     return type(value) == "table" and getmetatable(value) == JanitorImpl
 end
 
-function JanitorLib.new()
+function Janitor.new()
     local self: UnknownJanitor = setmetatable({}, JanitorImpl)
 
     return self
 end
 
-table.freeze(JanitorLib)
-
-return JanitorLib
+return {
+    Janitor = Janitor,
+}
