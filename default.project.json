@@ -1,0 +1,11 @@
+{
+    "name": "better-janitor",
+    "tree": {
+        "$className": "DataModel",
+        "ReplicatedStorage": {
+            "Janitor": {
+                "$path": "src"
+            }
+        }
+    }
+}
