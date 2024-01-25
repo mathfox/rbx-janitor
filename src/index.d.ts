@@ -3,7 +3,7 @@ type Proc = () => void;
 export class Janitor<Key> {
     constructor();
 
-    addFn(fn: Proc): void;
+    addFn(fn: Proc, key?: Key): void;
 
     add<Object, MethodName extends keyof Object, Key>(
         object: Object,

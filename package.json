@@ -1,7 +1,7 @@
 {
     "name": "@rbxts/better-janitor",
     "description": "Stack-based implementation of the Janitor library.",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "main": "src/init.lua",
     "typings": "src/index.d.ts",
     "files": [
