@@ -84,7 +84,7 @@ local function pushStack(self: UnknownJanitor, func: Proc): number
 end
 
 -- Basically utilizes the "table.insert" function to increase the speed in cases when
--- there is no need to know about the index at which the cleanup function was insterted.
+-- there is no need to know about the index at which the cleanup function was inserted.
 local function pushStackNoReturn(self: UnknownJanitor, func: Proc)
     local this = stack[self]
     if not this then
@@ -139,7 +139,6 @@ local funcToIndexMap: { [Proc]: number } = {}
         instance:Destroy()
     end)
 ]]
-
 function JanitorImpl:add(object, methodName, key)
     self:addFn(function()
         local indexableByKey = object :: any
