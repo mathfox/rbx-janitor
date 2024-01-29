@@ -1,7 +1,7 @@
 {
     "name": "@rbxts/better-janitor",
-    "description": "Stack-based implementation of the Janitor library.",
-    "version": "0.1.5",
+    "description": "A stack-based Janitor implementation.",
+    "version": "0.2.0",
     "main": "src/init.lua",
     "typings": "src/index.d.ts",
     "files": [
@@ -12,7 +12,9 @@
         "url": "git+https://github.com/mathfox/rbx-janitor.git"
     },
     "keywords": [
-        "janitor"
+        "janitor",
+        "maid",
+        "cleanup"
     ],
     "author": {
         "name": "Ivan Leontev",
