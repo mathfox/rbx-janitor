@@ -1,3 +1,3 @@
 # Overview
 
-A stack-based janitor implementation in Luau language for the Roblox platform.
+A stack-based Janitor implementation written in Luau for the Roblox platform with a TypeScript support.
