@@ -5,6 +5,12 @@ export class Janitor<Key> {
 
     addFn(fn: Proc, key?: Key): void;
 
+    /**
+     * 
+     * @param key vairant
+     */
+    addFunction(fn: Proc, key?: Key): void;
+
     add<Object, MethodName extends keyof Object, Key>(
         object: Object,
         methodName: MethodName,

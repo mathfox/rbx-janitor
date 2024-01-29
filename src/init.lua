@@ -19,16 +19,21 @@ export type JanitorImpl<Key, Object = JanitorObject> = {
     ) -> (),
 
     addFn: (self: Janitor<Key, Object>, func: Proc, key: Key?) -> (),
+
+    addFunction: (self: Janitor<Key, Object>, func: Proc, key: Key?) -> (),
+
     addSelf: (
         self: Janitor<Key, Object>,
         janitor: unknown,
         key: Key?
     ) -> (),
+
     addConnection: (
         self: Janitor<Key, Object>,
         connection: RBXScriptConnection,
         key: Key?
     ) -> (),
+
     addInstance: (
         self: Janitor<Key, Object>,
         inst: Instance,
@@ -154,6 +159,9 @@ function JanitorImpl:addFn(func, key)
         pushStackNoReturn(self, func)
     end
 end
+
+-- Alias
+JanitorImpl.addFunction = JanitorImpl.addFn
 
 -- Shorthand for :add(janitor, "destroy")
 function JanitorImpl:addSelf(janitor, key)
