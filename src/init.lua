@@ -294,4 +294,5 @@ end
 
 return {
     Janitor = Janitor,
+    is = Janitor.is,
 }
