@@ -16,45 +16,67 @@ export type JanitorImpl<Key, Object = JanitorObject> = {
         object: Object,
         methodName: string,
         key: Key?
-    ) -> (),
+    ) -> Janitor<Key, Object>,
 
-    addFn: (self: Janitor<Key, Object>, func: Proc, key: Key?) -> (),
+    addFn: (
+        self: Janitor<Key, Object>,
+        fn: Proc,
+        key: Key?
+    ) -> Janitor<Key, Object>,
 
-    addFunction: (self: Janitor<Key, Object>, func: Proc, key: Key?) -> (),
+    addFunction: (
+        self: Janitor<Key, Object>,
+        fn: Proc,
+        key: Key?
+    ) -> Janitor<Key, Object>,
 
     addSelf: (
         self: Janitor<Key, Object>,
-        janitor: unknown,
+        destroyLike: { destroy: (...unknown) -> ...unknown },
         key: Key?
-    ) -> (),
+    ) -> Janitor<Key, Object>,
 
     addConnection: (
         self: Janitor<Key, Object>,
         connection: RBXScriptConnection,
         key: Key?
-    ) -> (),
+    ) -> Janitor<Key, Object>,
 
     addInstance: (
         self: Janitor<Key, Object>,
         inst: Instance,
         key: Key?
-    ) -> (),
+    ) -> Janitor<Key, Object>,
+
+    addTask: (
+        self: Janitor<Key, Object>,
+        task: thread,
+        key: Key?
+    ) -> Janitor<Key, Object>,
+
+    addCoroutine: (
+        self: Janitor<Key, Object>,
+        co: thread,
+        key: Key?
+    ) -> Janitor<Key, Object>,
 
     isKeyAttached: (self: Janitor<Key, Object>, key: Key) -> boolean,
-    clean: (self: Janitor<Key, Object>, key: Key) -> (),
+    keysAttached: (self: Janitor<Key, Object>, ...Key) -> boolean,
 
-    remove: (self: Janitor<Key, Object>, key: Key) -> (),
+    clean: (self: Janitor<Key, Object>, ...Key) -> Janitor<Key, Object>,
 
-    cleanup: (self: Janitor<Key, Object>) -> (),
+    remove: (self: Janitor<Key, Object>, ...Key) -> Janitor<Key, Object>,
+
+    cleanup: (self: Janitor<Key, Object>) -> Janitor<Key, Object>,
 
     destroy: (self: Janitor<Key, Object>) -> (),
 
-    addRace: (
+    addCleanupRace: (
         self: Janitor<Key, Object>,
         setup: (winRace: Proc) -> Proc,
         onCleanup: Proc,
         key: Key?
-    ) -> Key,
+    ) -> Janitor<Key, Object>,
 }
 
 export type Janitor<Key, Object> = typeof(setmetatable(
@@ -66,11 +88,12 @@ export type UnknownJanitor = Janitor<unknown, unknown>
 
 type JanitorItem = Proc | false
 
+-- Each Janitor instance might have it's corresponding JanitorItem stack.
 local stack = {} :: {
     [UnknownJanitor]: { JanitorItem },
 }
 
-local function pushStack(self: UnknownJanitor, func: Proc): number
+local function pushStack(self: UnknownJanitor, fn: Proc): number
     local this = stack[self]
     if not this then
         this = {}
@@ -78,13 +101,13 @@ local function pushStack(self: UnknownJanitor, func: Proc): number
     end
 
     local index = #this + 1
-    this[index] = func
+    this[index] = fn
 
     return index
 end
 
--- Basically utilizes the "table.insert" function to increase the speed in cases when
--- there is no need to know about the index at which the cleanup function was inserted.
+-- Basically utilizes the "table.insert" function to increase the runtime speed in cases when
+-- there is no need to track the index at which the cleanup function was inserted.
 local function pushStackNoReturn(self: UnknownJanitor, func: Proc)
     local this = stack[self]
     if not this then
@@ -95,20 +118,21 @@ local function pushStackNoReturn(self: UnknownJanitor, func: Proc)
     table.insert(this, func)
 end
 
+-- Indices store a tabla in key-CleanFunction format for each of the Janitor instances.
 local indices = {} :: {
     [UnknownJanitor]: {
         [unknown]: Proc,
     },
 }
 
-local function pushIndice(self: UnknownJanitor, key: unknown, func: Proc)
+local function setIndiceForFn(self: UnknownJanitor, key: unknown, fn: Proc)
     local this = indices[self]
     if not this then
         this = {}
         indices[self] = this
     end
 
-    this[key] = func
+    this[key] = fn
 end
 
 local JanitorImpl = {} :: JanitorImpl<unknown, unknown>
@@ -118,7 +142,7 @@ function JanitorImpl.__tostring()
     return "Janitor"
 end
 
-local funcToIndexMap: { [Proc]: number } = {}
+local fnToIndexMap = {} :: { [Proc]: number }
 
 --[[
     Supposed to be used with Instances/tables.
@@ -145,36 +169,100 @@ function JanitorImpl:add(object, methodName, key)
 
         indexableByKey[methodName](object)
     end, key)
+
+    return self
 end
 
+--[[
+    Janitor units are functions, so every single clean operation will call some function.
+
+    User may want to provide optional "key" argument to clean/remove the CleanFunction regardless of the "cleanup", "destroy" functions.
+]]
 function JanitorImpl:addFn(func, key)
     if key then
         self:clean(key)
 
-        funcToIndexMap[func] = pushStack(self, func)
+        fnToIndexMap[func] = pushStack(self, func)
 
-        pushIndice(self, key, func)
+        setIndiceForFn(self, key, func)
     else
         pushStackNoReturn(self, func)
     end
+
+    return self
 end
 
 -- Alias
 JanitorImpl.addFunction = JanitorImpl.addFn
 
--- Shorthand for :add(janitor, "destroy")
+--[[
+    Generally works with any table that exposes "destroy" method.
+
+    Shorthand for:
+    ```lua
+    :add(janitor, "destroy");
+    ```
+]]
 function JanitorImpl:addSelf(janitor, key)
     self:add(janitor, "destroy", key)
+
+    return self
 end
 
--- Shorthand for :add(connection, "Disconnect")
+--[[
+    Shorthand for:
+    ```lua
+    :add(connection, "Disconnect")
+    ```
+]]
 function JanitorImpl:addConnection(connection, key)
     self:add(connection, "Disconnect", key)
+
+    return self
 end
 
--- Shorthand for :add(instance, "Destroy")
+--[[
+    Shorthand for:
+    ```lua
+    :add(instance, "Destroy")
+    ```
+]]
 function JanitorImpl:addInstance(inst, key)
     self:add(inst, "Destroy", key)
+
+    return self
+end
+
+--[[
+    Shorthand for:
+    ```lua
+    :addFn(function()
+        task.cancel(thread)
+    end)
+    ```
+]]
+function JanitorImpl:addTask(_task, key)
+    self:addFn(function()
+        task.cancel(_task)
+    end, key)
+
+    return self
+end
+
+--[[
+    Shorthand for:
+    ```lua
+    :addFn(function()
+        coroutine.close(thread)
+    end)
+    ```
+]]
+function JanitorImpl:addCoroutine(co, key)
+    self:addFn(function()
+        coroutine.close(co)
+    end, key)
+
+    return self
 end
 
 function JanitorImpl:isKeyAttached(key)
@@ -183,8 +271,23 @@ function JanitorImpl:isKeyAttached(key)
         return false
     end
 
-    local func = this[key]
-    return func ~= nil
+    return this[key] ~= nil
+end
+
+function JanitorImpl:keysAttached(...)
+    local this = indices[self]
+    if not this then
+        return false
+    end
+
+    for i = 1, select("#", ...) do
+        local key = select(i, ...)
+        if this[key] == nil then
+            return false
+        end
+    end
+
+    return true
 end
 
 -- Cleans a specific task, also replaces the JanitorItem in-place in a stack from a function to a value 'false'.
@@ -197,13 +300,15 @@ function JanitorImpl:clean(key)
 
             -- Basically marking down as the one that should be ignored in the future
             -- so we preserve the same ordering without expensive remove operations;
-            stack[self][funcToIndexMap[func]] = false
+            stack[self][fnToIndexMap[func]] = false
 
-            funcToIndexMap[func] = nil
+            fnToIndexMap[func] = nil
 
             this[key] = nil
         end
     end
+
+    return self
 end
 
 function JanitorImpl:remove(key)
@@ -211,13 +316,15 @@ function JanitorImpl:remove(key)
     if this then
         local func = this[key]
         if func then
-            stack[self][funcToIndexMap[func]] = false
+            stack[self][fnToIndexMap[func]] = false
 
-            funcToIndexMap[func] = nil
+            fnToIndexMap[func] = nil
 
             this[key] = nil
         end
     end
+
+    return self
 end
 
 function JanitorImpl:cleanup()
@@ -228,7 +335,7 @@ function JanitorImpl:cleanup()
         for index = #this, 1, -1 do
             func = this[index]
             if func then
-                funcToIndexMap[func] = nil
+                fnToIndexMap[func] = nil
 
                 func()
             end
@@ -240,37 +347,45 @@ function JanitorImpl:cleanup()
     end
 
     indices[self] = nil
+
+    return self
 end
 
-function JanitorImpl:addRace(setup, onCleanup, key)
-    if not key then
-        key = {}
-    end
+--[[
+    Basic usage:
+    ```lua
+    janitor:addCleanupRace(function(winRace)
+        local timeoutThread = task.delay(10, function()
+            warn("10 seconds passed, starting the game")
+        end)
 
-    local isRaceEnded = false
+        return function()
+            task.cancel(timeoutThread)
+        end
+    end, function()
+        warn("for whatever reason game starts right now, cleaning up")
+    end)
+    ```
+]]
+function JanitorImpl:addCleanupRace(setup, onCleanup, key)
+    local innerFn
 
     local function winRace()
-        if isRaceEnded then
-            error(
-                '\n\tUnable to win the race as the "clean" function has already been called.'
-                    .. '\n\tDid you forget to disconnect the race handler by using "winRace" function?',
-                2
-            )
-        end
-
-        isRaceEnded = true
-        self:remove(key)
+        innerFn = function() end
     end
 
     local onRaceLoss = setup(winRace)
 
-    self:addFn(function()
-        isRaceEnded = true
+    innerFn = function()
         onRaceLoss()
         onCleanup()
+    end
+
+    self:addFn(function()
+        innerFn()
     end, key)
 
-    return key
+    return self
 end
 
 function JanitorImpl:destroy()
@@ -282,17 +397,22 @@ end
 
 local Janitor = {}
 
-function Janitor.is(value)
-    return type(value) == "table" and getmetatable(value) == JanitorImpl
-end
-
 function Janitor.new()
     local self: UnknownJanitor = setmetatable({}, JanitorImpl)
 
     return self
 end
 
-return {
+table.freeze(Janitor)
+
+local exports = {
     Janitor = Janitor,
-    is = Janitor.is,
 }
+
+function exports.is(value)
+    return type(value) == "table" and getmetatable(value) == JanitorImpl
+end
+
+table.freeze(exports)
+
+return exports
