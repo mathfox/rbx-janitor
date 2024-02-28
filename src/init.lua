@@ -7,6 +7,10 @@ type JanitorObject = Instance | RBXScriptConnection | { [unknown]: unknown }
 
 type Proc = () -> ()
 
+type PromiseLike = {
+    cancel: (self: PromiseLike) -> (),
+}
+
 export type JanitorImpl<Key, Object = JanitorObject> = {
     __index: JanitorImpl<Key, Object>,
     __tostring: () -> "Janitor",
@@ -39,6 +43,12 @@ export type JanitorImpl<Key, Object = JanitorObject> = {
     addConnection: (
         self: Janitor<Key, Object>,
         connection: RBXScriptConnection,
+        key: Key?
+    ) -> Janitor<Key, Object>,
+
+    addPromise: (
+        self: Janitor<Key, Object>,
+        promise: PromiseLike,
         key: Key?
     ) -> Janitor<Key, Object>,
 
@@ -221,6 +231,12 @@ function JanitorImpl:addConnection(connection, key)
     return self
 end
 
+function JanitorImpl:addPromise(promise, key)
+    self:add(promise, "cancel", key)
+
+    return self
+end
+
 --[[
     Shorthand for:
     ```lua
@@ -399,6 +415,8 @@ local Janitor = {}
 
 function Janitor.new()
     local self: UnknownJanitor = setmetatable({}, JanitorImpl)
+
+    table.freeze(self)
 
     return self
 end

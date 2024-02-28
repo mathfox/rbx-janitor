@@ -25,6 +25,11 @@ export class Janitor<Key> {
     addConnection(connection: RBXScriptConnection, key?: Key): Janitor<Key>;
 
     /**
+     * Shorthand for the add(promise, "cancel") call.
+     */
+    addPromise<T>(promise: Promise<T>, key?: Key): Janitor<Key>;
+
+    /**
      * Shorthand for the add(instance, "Destroy") call.
      */
     addInstance(instance: Instance, key?: Key): Janitor<Key>;
