@@ -99,19 +99,19 @@ export type UnknownJanitor = Janitor<unknown, unknown>
 type JanitorItem = Proc | false
 
 -- Each Janitor instance might have it's corresponding JanitorItem stack.
-local stack = {} :: {
+local stackMap = {} :: {
     [UnknownJanitor]: { JanitorItem },
 }
 
 local function pushStack(self: UnknownJanitor, fn: Proc): number
-    local this = stack[self]
-    if not this then
-        this = {}
-        stack[self] = this
+    local stack = stackMap[self]
+    if not stack then
+        stack = {}
+        stackMap[self] = stack
     end
 
-    local index = #this + 1
-    this[index] = fn
+    local index = #stack + 1
+    stack[index] = fn
 
     return index
 end
@@ -119,13 +119,13 @@ end
 -- Basically utilizes the "table.insert" function to increase the runtime speed in cases when
 -- there is no need to track the index at which the cleanup function was inserted.
 local function pushStackNoReturn(self: UnknownJanitor, func: Proc)
-    local this = stack[self]
-    if not this then
-        this = {}
-        stack[self] = this
+    local stack = stackMap[self]
+    if not stack then
+        stack = {}
+        stackMap[self] = stack
     end
 
-    table.insert(this, func)
+    table.insert(stack, func)
 end
 
 -- Indices store a tabla in key-CleanFunction format for each of the Janitor instances.
@@ -316,7 +316,7 @@ function JanitorImpl:clean(key)
 
             -- Basically marking down as the one that should be ignored in the future
             -- so we preserve the same ordering without expensive remove operations;
-            stack[self][fnToIndexMap[func]] = false
+            stackMap[self][fnToIndexMap[func]] = false
 
             fnToIndexMap[func] = nil
 
@@ -332,7 +332,7 @@ function JanitorImpl:remove(key)
     if this then
         local func = this[key]
         if func then
-            stack[self][fnToIndexMap[func]] = false
+            stackMap[self][fnToIndexMap[func]] = false
 
             fnToIndexMap[func] = nil
 
@@ -344,7 +344,7 @@ function JanitorImpl:remove(key)
 end
 
 function JanitorImpl:cleanup()
-    local this = stack[self]
+    local this = stackMap[self]
     if this then
         local func: JanitorItem
 
@@ -359,7 +359,7 @@ function JanitorImpl:cleanup()
             this[index] = nil
         end
 
-        stack[self] = nil
+        stackMap[self] = nil
     end
 
     indices[self] = nil
