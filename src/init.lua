@@ -404,11 +404,17 @@ function JanitorImpl:addCleanupRace(setup, onCleanup, key)
     return self
 end
 
+local exports = {}
+
 function JanitorImpl:destroy()
-    self:cleanup()
+    local this = self :: any
+
+    if exports.is(this) then
+        self:cleanup()
+    end
 
     -- Ensure no further method calls can be done
-    setmetatable((self :: any) :: {}, nil)
+    setmetatable(this, nil)
 end
 
 local Janitor = {}
@@ -423,9 +429,7 @@ end
 
 table.freeze(Janitor)
 
-local exports = {
-    Janitor = Janitor,
-}
+exports.Janitor = Janitor
 
 function exports.is(value)
     return type(value) == "table" and getmetatable(value) == JanitorImpl
