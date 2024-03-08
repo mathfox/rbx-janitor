@@ -431,8 +431,8 @@ table.freeze(Janitor)
 
 exports.Janitor = Janitor
 
-function exports.is(value)
-    return type(value) == "table" and getmetatable(value) == JanitorImpl
+function exports.is(value: unknown)
+    return type(value) == "table" and getmetatable(value :: any) == JanitorImpl
 end
 
 table.freeze(exports)
