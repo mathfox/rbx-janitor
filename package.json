@@ -33,6 +33,6 @@
         "@rbxts/types": "^1.0.759"
     },
     "scripts": {
-        "test": "rojo serve"
+        "dev": "rojo serve"
     }
 }
