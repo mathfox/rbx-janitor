@@ -1,7 +1,7 @@
 {
     "name": "@rbxts/better-janitor",
     "description": "A stack-based Janitor implementation.",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "main": "src/init.lua",
     "typings": "src/index.d.ts",
     "files": [
@@ -29,8 +29,8 @@
         "access": "public"
     },
     "devDependencies": {
-        "@rbxts/compiler-types": "^2.2.0-types.0",
-        "@rbxts/types": "^1.0.743"
+        "@rbxts/compiler-types": "^2.3.0-types.0",
+        "@rbxts/types": "^1.0.759"
     },
     "scripts": {
         "test": "rojo serve"
