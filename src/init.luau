@@ -422,8 +422,6 @@ local Janitor = {}
 function Janitor.new()
     local self: UnknownJanitor = setmetatable({}, JanitorImpl)
 
-    table.freeze(self)
-
     return self
 end
 
