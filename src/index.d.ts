@@ -1,6 +1,6 @@
 type Proc = () => void;
 
-export class Janitor<Key> {
+export class Janitor<Key = unknown> {
     constructor();
 
     addFn(fn: Proc, key?: Key): Janitor<Key>;
