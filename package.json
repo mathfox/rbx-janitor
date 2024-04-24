@@ -1,38 +1,38 @@
 {
-    "name": "@rbxts/better-janitor",
-    "description": "A stack-based Janitor implementation.",
-    "version": "0.2.6",
-    "main": "src/init.lua",
-    "typings": "src/index.d.ts",
-    "files": [
-        "src"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/mathfox/rbx-janitor.git"
-    },
-    "keywords": [
-        "janitor",
-        "maid",
-        "cleanup"
-    ],
-    "author": {
-        "name": "Ivan Leontev",
-        "url": "https://github.com/mathfox"
-    },
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/mathfox/rbx-janitor/issues"
-    },
-    "homepage": "https://github.com/mathfox/rbx-janitor#readme",
-    "publishConfig": {
-        "access": "public"
-    },
-    "devDependencies": {
-        "@rbxts/compiler-types": "^2.3.0-types.0",
-        "@rbxts/types": "^1.0.759"
-    },
-    "scripts": {
-        "dev": "rojo serve"
-    }
+	"name": "@rbxts/better-janitor",
+	"description": "A stack-based Janitor implementation.",
+	"version": "0.2.6",
+	"main": "src/init.lua",
+	"typings": "src/index.d.ts",
+	"files": [
+		"src"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/mathfox/rbx-janitor.git"
+	},
+	"keywords": [
+		"janitor",
+		"maid",
+		"cleanup"
+	],
+	"author": {
+		"name": "Ivan Leontev",
+		"url": "https://github.com/mathfox"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/mathfox/rbx-janitor/issues"
+	},
+	"homepage": "https://github.com/mathfox/rbx-janitor#readme",
+	"publishConfig": {
+		"access": "public"
+	},
+	"devDependencies": {
+		"@rbxts/compiler-types": "^2.3.0-types.1",
+		"@rbxts/types": "^1.0.771"
+	},
+	"scripts": {
+		"dev": "rojo serve"
+	}
 }
