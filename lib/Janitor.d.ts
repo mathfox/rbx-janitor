@@ -1,66 +1,90 @@
 type Proc = () => void;
 
-export class Janitor<Key = unknown> {
-    constructor();
+interface IJanitor<Key extends any> {
+	addFunction(fn: Proc, key?: Key): IJanitor<Key>;
 
-    addFn(fn: Proc, key?: Key): Janitor<Key>;
+	add<Object, MethodName extends keyof Object, K extends Key>(
+		object: Object,
+		methodName: MethodName,
+		key?: K
+	): IJanitor<Key>;
 
-    addFunction(fn: Proc, key?: Key): Janitor<Key>;
+	addSelf<
+		T extends {
+			destroy: (self: T, ...[]) => unknown;
+		}
+	>(
+		destroyLike: T,
+		key?: Key
+	): IJanitor<Key>;
 
-    add<Object, MethodName extends keyof Object, Key>(
-        object: Object,
-        methodName: MethodName,
-        key?: Key
-    ): Janitor<Key>;
+	/**
+	 * Shorthand for the add(connection, "Disconnect") call.
+	 */
+	addConnection(connection: RBXScriptConnection, key?: Key): IJanitor<Key>;
 
-    addSelf<
-        T extends {
-            destroy: (self: T, ...[]) => unknown;
-        }
-    >(destroyLike: T, key?: Key): Janitor<Key>;
+	/**
+	 * Shorthand for the add(promise, "cancel") call.
+	 */
+	addPromise<T>(promise: Promise<T>, key?: Key): IJanitor<Key>;
 
-    /**
-     * Shorthand for the add(connection, "Disconnect") call.
-     */
-    addConnection(connection: RBXScriptConnection, key?: Key): Janitor<Key>;
+	/**
+	 * Shorthand for the add(instance, "Destroy") call.
+	 */
+	addInstance(instance: Instance, key?: Key): IJanitor<Key>;
 
-    /**
-     * Shorthand for the add(promise, "cancel") call.
-     */
-    addPromise<T>(promise: Promise<T>, key?: Key): Janitor<Key>;
+	addTask(task: thread, key?: Key): IJanitor<Key>;
+	addCoroutine(co: thread, key?: Key): IJanitor<Key>;
 
-    /**
-     * Shorthand for the add(instance, "Destroy") call.
-     */
-    addInstance(instance: Instance, key?: Key): Janitor<Key>;
+	addCleanupRace(
+		setup: (winRace: Proc) => Proc,
+		onCleanup: Proc,
+		key?: Key
+	): IJanitor<Key>;
 
-    addTask(task: thread, key?: Key): Janitor<Key>;
-    addCoroutine(co: thread, key?: Key): Janitor<Key>;
+	isKeyAttached(key: Key): boolean;
+	keysAttached(...keys: Key[]): boolean;
 
-    addCleanupRace(
-        setup: (winRace: Proc) => Proc,
-        onCleanup: Proc,
-        key?: Key
-    ): Janitor<Key>;
+	/**
+	 * Calls the cleanup function and removes it from the stack.
+	 * @param key A key to which cleanup function is bound.
+	 */
+	clean(key: Key): IJanitor<Key>;
 
-    isKeyAttached(key: Key): boolean;
-    keysAttached(...keys: Key[]): boolean;
+	/**
+	 * Removes the cleanup function associated with a provided key from the stack.
+	 * @param key A key to which cleanup function is bound.
+	 */
+	remove(keys: Key): IJanitor<Key>;
 
-    /**
-     * Calls the cleanup function and removes it from the stack.
-     * @param key A key to which cleanup function is bound.
-     */
-    clean(key: Key): Janitor<Key>;
+	cleanup(): IJanitor<Key>;
 
-    /**
-     * Removes the cleanup function associated with a provided key from the stack.
-     * @param key A key to which cleanup function is bound.
-     */
-    remove(keys: Key): Janitor<Key>;
-
-    cleanup(): Janitor<Key>;
-
-    destroy(): void;
+	/**
+	 * Destroys the Janitor.
+	 *
+	 * Further method calls will throw an error.
+	 */
+	destroy(): void;
 }
 
-export declare function is(value: unknown): boolean;
+export declare const Janitor: new <Key extends any = any>() => IJanitor<Key> & {
+	/**
+	 * Alias for {@link IJanitor.destroy} method.
+	 */
+	(): IJanitor<Key>["destroy"];
+
+	/**
+	 * Alias for {@link IJanitor.addFunction} method.
+	 */
+	addFn: IJanitor<Key>["addFunction"];
+};
+
+/**
+ * @deprecated
+ */
+export declare const is: typeof isJanitor;
+
+/**
+ * Checks whether the value is an instance of {@link Janitor} class.
+ */
+export declare function isJanitor(value: unknown): boolean;
