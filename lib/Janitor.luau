@@ -14,6 +14,7 @@ type PromiseLike = {
 export type JanitorImpl<Key, Object = JanitorObject> = {
     __index: JanitorImpl<Key, Object>,
     __tostring: () -> "Janitor",
+    __call: (self: Janitor<Key, Object>) -> (),
 
     add: (
         self: Janitor<Key, Object>,
@@ -201,9 +202,6 @@ function JanitorImpl:addFn(func, key)
 
     return self
 end
-
--- Alias
-JanitorImpl.addFunction = JanitorImpl.addFn
 
 --[[
     Generally works with any table that exposes "destroy" method.
@@ -404,18 +402,29 @@ function JanitorImpl:addCleanupRace(setup, onCleanup, key)
     return self
 end
 
-local exports = {}
+local function isJanitor(value: unknown)
+    return type(value) == "table" and getmetatable(value :: any) == JanitorImpl
+end
+
+local exports = {
+    isJanitor = isJanitor,
+    is = isJanitor,
+}
 
 function JanitorImpl:destroy()
     local this = self :: any
 
-    if exports.is(this) then
+    if isJanitor(this) then
         self:cleanup()
     end
 
     -- Ensure no further method calls can be done
     setmetatable(this, nil)
 end
+
+-- Aliases
+JanitorImpl.__call = JanitorImpl.destroy
+JanitorImpl.addFunction = JanitorImpl.addFn
 
 local Janitor = {}
 
@@ -429,9 +438,6 @@ table.freeze(Janitor)
 
 exports.Janitor = Janitor
 
-function exports.is(value: unknown)
-    return type(value) == "table" and getmetatable(value :: any) == JanitorImpl
-end
 
 table.freeze(exports)
 
