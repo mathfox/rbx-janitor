@@ -1,11 +1,11 @@
 {
 	"name": "@rbxts/better-janitor",
 	"description": "A stack-based Janitor implementation for Roblox platform.",
-	"version": "0.2.7",
+	"version": "0.2.8",
 	"main": "lib/Janitor.lua",
 	"typings": "lib/Janitor.d.ts",
 	"files": [
-		"src"
+		"lib"
 	],
 	"repository": {
 		"type": "git",
