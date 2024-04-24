@@ -1,63 +1,75 @@
-type Proc = () => void;
+type DestroyLike<T> = {
+	destroy: (self: T, ...args: Array<any>) => any;
+};
 
-interface IJanitor<Key extends any> {
-	addFunction(fn: Proc, key?: Key): IJanitor<Key>;
+export declare interface Janitor<Key extends any = any> {
+	constructor(): Janitor;
 
-	add<Object, MethodName extends keyof Object, K extends Key>(
+	/**
+	 * Adds `callback` to the top of the cleanup stack.
+	 */
+	addFunction(callback: Callback, key?: Key): Janitor<Key>;
+
+	/**
+	 * Alias for {@link Janitor.addFunction} method.
+	 */
+	addFn: Janitor["addFunction"];
+
+	add<Object, MethodName extends keyof Object>(
 		object: Object,
 		methodName: MethodName,
-		key?: K
-	): IJanitor<Key>;
-
-	addSelf<
-		T extends {
-			destroy: (self: T, ...[]) => unknown;
-		}
-	>(
-		destroyLike: T,
 		key?: Key
-	): IJanitor<Key>;
+	): Janitor<Key>;
+
+	addSelf<T extends {}>(destroyLike: T, key?: Key): Janitor<Key>;
 
 	/**
 	 * Shorthand for the add(connection, "Disconnect") call.
 	 */
-	addConnection(connection: RBXScriptConnection, key?: Key): IJanitor<Key>;
+	addConnection(connection: RBXScriptConnection, key?: Key): Janitor<Key>;
 
 	/**
 	 * Shorthand for the add(promise, "cancel") call.
 	 */
-	addPromise<T>(promise: Promise<T>, key?: Key): IJanitor<Key>;
+	addPromise<T>(promise: Promise<T>, key?: Key): Janitor<Key>;
 
 	/**
 	 * Shorthand for the add(instance, "Destroy") call.
 	 */
-	addInstance(instance: Instance, key?: Key): IJanitor<Key>;
+	addInstance(instance: Instance, key?: Key): Janitor<Key>;
 
-	addTask(task: thread, key?: Key): IJanitor<Key>;
-	addCoroutine(co: thread, key?: Key): IJanitor<Key>;
+	/**
+	 * Utilizes {@link task.cancel} function.
+	 */
+	addTask(task: thread, key?: Key): Janitor<Key>;
+
+	/**
+	 * Utilizies {@link coroutine.close} function.
+	 */
+	addCoroutine(co: thread, key?: Key): Janitor<Key>;
 
 	addCleanupRace(
-		setup: (winRace: Proc) => Proc,
-		onCleanup: Proc,
+		setup: (winRace: Callback) => Callback,
+		onCleanup: Callback,
 		key?: Key
-	): IJanitor<Key>;
+	): Janitor<Key>;
 
 	isKeyAttached(key: Key): boolean;
-	keysAttached(...keys: Key[]): boolean;
+	keysAttached(...keys: Array<Key>): boolean;
 
 	/**
 	 * Calls the cleanup function and removes it from the stack.
 	 * @param key A key to which cleanup function is bound.
 	 */
-	clean(key: Key): IJanitor<Key>;
+	clean(key: Key): Janitor<Key>;
 
 	/**
 	 * Removes the cleanup function associated with a provided key from the stack.
 	 * @param key A key to which cleanup function is bound.
 	 */
-	remove(keys: Key): IJanitor<Key>;
+	remove(keys: Key): Janitor<Key>;
 
-	cleanup(): IJanitor<Key>;
+	cleanup(): Janitor<Key>;
 
 	/**
 	 * Destroys the Janitor.
@@ -65,19 +77,14 @@ interface IJanitor<Key extends any> {
 	 * Further method calls will throw an error.
 	 */
 	destroy(): void;
+
+	/**
+	 * Alias for {@link Janitor.destroy} method.
+	 */
+	(): Janitor["destroy"];
 }
 
-export declare const Janitor: new <Key extends any = any>() => IJanitor<Key> & {
-	/**
-	 * Alias for {@link IJanitor.destroy} method.
-	 */
-	(): IJanitor<Key>["destroy"];
-
-	/**
-	 * Alias for {@link IJanitor.addFunction} method.
-	 */
-	addFn: IJanitor<Key>["addFunction"];
-};
+export declare const Janitor: new <Key extends any = any>() => Janitor<Key>;
 
 /**
  * @deprecated
