@@ -1,22 +1,20 @@
 {
-    "compilerOptions": {
-        // required
-        "allowSyntheticDefaultImports": true,
-        "downlevelIteration": true,
-        "module": "commonjs",
-        "moduleResolution": "Node",
-        "noLib": true,
-        "forceConsistentCasingInFileNames": true,
-        "moduleDetection": "force",
-        "strict": true,
-        "target": "ESNext",
-        "typeRoots": [
-            "node_modules/@rbxts"
-        ],
-        // configurable
-        "rootDir": "src",
-        "outDir": "out",
-        "incremental": true,
-        "tsBuildInfoFile": "out/tsconfig.tsbuildinfo"
-    },
+	"compilerOptions": {
+		// required
+		"allowSyntheticDefaultImports": true,
+		"downlevelIteration": true,
+		"module": "commonjs",
+		"moduleResolution": "Node",
+		"noLib": true,
+		"forceConsistentCasingInFileNames": true,
+		"moduleDetection": "force",
+		"strict": true,
+		"target": "ESNext",
+		"typeRoots": ["node_modules/@rbxts"],
+		// configurable
+		"rootDir": "src",
+		"outDir": "out",
+		"incremental": true,
+		"tsBuildInfoFile": "out/tsconfig.tsbuildinfo"
+	}
 }
