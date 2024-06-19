@@ -20,4 +20,11 @@ const janitor = new Janitor()
 			// some code
 		})
 	);
+
+task.delay(1, () => {
+    janitor.destroy()
+    // or
+    janitor.cleanup()
+    // for further cleanup tasks
+})
 ```
