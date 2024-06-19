@@ -1,10 +1,8 @@
-type DestroyLike<T> = {
-	destroy: (self: T, ...args: Array<any>) => any;
+export type DestroyLike<T> = {
+	destroy: (self: T, ...args: Array<unknown>) => unknown;
 };
 
-export declare interface Janitor<Key extends any = any> {
-	constructor(): Janitor;
-
+export declare interface Janitor<Key = unknown> {
 	/**
 	 * Adds `callback` to the top of the cleanup stack.
 	 */
@@ -18,7 +16,7 @@ export declare interface Janitor<Key extends any = any> {
 	add<Object, MethodName extends keyof Object>(
 		object: Object,
 		methodName: MethodName,
-		key?: Key
+		key?: Key,
 	): Janitor<Key>;
 
 	addSelf<T extends {}>(destroyLike: T, key?: Key): Janitor<Key>;
@@ -51,7 +49,7 @@ export declare interface Janitor<Key extends any = any> {
 	addCleanupRace(
 		setup: (winRace: Callback) => Callback,
 		onCleanup: Callback,
-		key?: Key
+		key?: Key,
 	): Janitor<Key>;
 
 	isKeyAttached(key: Key): boolean;
@@ -84,14 +82,14 @@ export declare interface Janitor<Key extends any = any> {
 	(): Janitor["destroy"];
 }
 
-export declare const Janitor: new <Key extends any = any>() => Janitor<Key>;
+export const Janitor: new <Key = unknown>() => Janitor<Key>;
 
 /**
  * @deprecated
  */
-export declare const is: typeof isJanitor;
+export const is: typeof isJanitor;
 
 /**
  * Checks whether the value is an instance of {@link Janitor} class.
  */
-export declare function isJanitor(value: unknown): boolean;
+export function isJanitor(value: unknown): boolean;
