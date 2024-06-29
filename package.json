@@ -1,7 +1,7 @@
 {
 	"name": "@rbxts/better-janitor",
 	"description": "A stack-based Janitor implementation for Roblox platform.",
-	"version": "0.3.4",
+	"version": "0.3.5",
 	"main": "src/Janitor.lua",
 	"typings": "src/Janitor.d.ts",
 	"files": ["src/Janitor.d.ts", "src/Janitor.lua"],
@@ -22,12 +22,12 @@
 	"publishConfig": {
 		"access": "public"
 	},
-	"devDependencies": {
-		"@biomejs/biome": "1.8.1",
+	"dependencies": {
 		"@rbxts/compiler-types": "^2.3.0-types.1",
-		"@rbxts/types": "^1.0.771"
+		"@rbxts/types": "1.0.787"
 	},
 	"scripts": {
-		"server": "rojo serve"
+		"serve": "rojo serve",
+		"fmt": "bunx @biomejs/biome check --write"
 	}
 }
