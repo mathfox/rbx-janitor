@@ -1,7 +1,7 @@
 {
 	"name": "@rbxts/better-janitor",
 	"description": "A stack-based Janitor implementation for Roblox platform.",
-	"version": "0.3.5",
+	"version": "0.3.6",
 	"main": "src/Janitor.lua",
 	"typings": "src/Janitor.d.ts",
 	"files": ["src/Janitor.d.ts", "src/Janitor.lua"],
@@ -9,7 +9,7 @@
 		"type": "git",
 		"url": "git+https://github.com/mathfox/rbx-janitor.git"
 	},
-	"keywords": ["janitor", "maid", "cleanup"],
+	"keywords": ["roblox", "roblox-ts", "janitor", "maid", "cleanup"],
 	"author": {
 		"name": "Ivan Leontev",
 		"url": "https://github.com/mathfox"
@@ -29,5 +29,8 @@
 	"scripts": {
 		"serve": "rojo serve",
 		"fmt": "bunx @biomejs/biome check --write"
+	},
+	"devDependencies": {
+		"@rbxts/light-promise": "^0.0.3"
 	}
 }

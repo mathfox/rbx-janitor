@@ -29,7 +29,7 @@ export declare interface Janitor<Key = unknown> {
 	/**
 	 * Shorthand for the add(promise, "cancel") call.
 	 */
-	addPromise<T>(promise: Promise<T>, key?: Key): Janitor<Key>;
+	addPromise<T>(promise: Promise<T> | LightPromise<T>, key?: Key): Janitor<Key>;
 
 	/**
 	 * Shorthand for the add(instance, "Destroy") call.
