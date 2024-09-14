@@ -1,5 +1,7 @@
 --!strict
 --!native
+--!optimize 2
+
 --[[
 MIT License
 
@@ -457,10 +459,6 @@ function Janitor.new()
     return self
 end
 
-table.freeze(Janitor)
-
 exports.Janitor = Janitor
-
-table.freeze(exports)
 
 return exports

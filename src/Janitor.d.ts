@@ -1,73 +1,83 @@
-export type DestroyLike<T> = {
-	destroy: (self: T, ...args: Array<unknown>) => unknown;
+type DestroyLike<T> = {
+	destroy: (self: unknown, ...args: Array<unknown>) => unknown;
 };
 
-export declare interface Janitor<Key = unknown> {
+/**
+ * Checks whether the value is an instance of {@link Janitor} class.
+ */
+export function isJanitor(value: unknown): boolean;
+
+export { isJanitor as is };
+
+interface Janitor<TKey> {
 	/**
 	 * Adds `callback` to the top of the cleanup stack.
 	 */
-	addFunction(callback: Callback, key?: Key): Janitor<Key>;
+	addFunction(callback: Callback, key?: TKey): Janitor<TKey>;
 
 	/**
 	 * Alias for {@link Janitor.addFunction} method.
 	 */
-	addFn: Janitor["addFunction"];
+	addFn: Janitor<TKey>["addFunction"];
 
-	add<Object, MethodName extends keyof Object>(
-		object: Object,
-		methodName: MethodName,
-		key?: Key,
-	): Janitor<Key>;
+	add<TInput extends object>(
+		object: TInput,
+		methodName: keyof TInput,
+		key?: TKey,
+	): Janitor<TKey>;
 
-	addSelf<T extends {}>(destroyLike: T, key?: Key): Janitor<Key>;
+	addSelf<TInput extends DestroyLike<unknown>>(
+		destroyLike: TInput,
+		key?: TKey,
+	): Janitor<TKey>;
 
 	/**
 	 * Shorthand for the add(connection, "Disconnect") call.
 	 */
-	addConnection(connection: RBXScriptConnection, key?: Key): Janitor<Key>;
+	addConnection(connection: RBXScriptConnection, key?: TKey): Janitor<TKey>;
 
 	/**
 	 * Shorthand for the add(promise, "cancel") call.
 	 */
-	addPromise<T>(promise: Promise<T> | LightPromise<T>, key?: Key): Janitor<Key>;
+	addPromise(promise: PromiseLike<unknown>, key?: TKey): Janitor<TKey>;
 
 	/**
 	 * Shorthand for the add(instance, "Destroy") call.
 	 */
-	addInstance(instance: Instance, key?: Key): Janitor<Key>;
+	addInstance(instance: Instance, key?: TKey): Janitor<TKey>;
 
 	/**
 	 * Utilizes {@link task.cancel} function.
 	 */
-	addTask(task: thread, key?: Key): Janitor<Key>;
+	addTask(task: thread, key?: TKey): Janitor<TKey>;
 
 	/**
 	 * Utilizies {@link coroutine.close} function.
 	 */
-	addCoroutine(co: thread, key?: Key): Janitor<Key>;
+	addCoroutine(co: thread, key?: TKey): Janitor<TKey>;
 
 	addCleanupRace(
 		setup: (winRace: Callback) => Callback,
 		onCleanup: Callback,
-		key?: Key,
-	): Janitor<Key>;
+		key?: TKey,
+	): Janitor<TKey>;
 
-	isKeyAttached(key: Key): boolean;
-	keysAttached(...keys: Array<Key>): boolean;
+	isKeyAttached(key: TKey): boolean;
+	keysAttached(...keys: ReadonlyArray<TKey>): boolean;
 
 	/**
 	 * Calls the cleanup function and removes it from the stack.
 	 * @param key A key to which cleanup function is bound.
 	 */
-	clean(key: Key): Janitor<Key>;
+	clean(key: TKey): Janitor<TKey>;
 
 	/**
 	 * Removes the cleanup function associated with a provided key from the stack.
 	 * @param key A key to which cleanup function is bound.
 	 */
-	remove(keys: Key): Janitor<Key>;
+	remove(keys: TKey): Janitor<TKey>;
 
-	cleanup(): Janitor<Key>;
+	cleanup(): Janitor<TKey>;
 
 	/**
 	 * Destroys the Janitor.
@@ -79,17 +89,11 @@ export declare interface Janitor<Key = unknown> {
 	/**
 	 * Alias for {@link Janitor.destroy} method.
 	 */
-	(): Janitor["destroy"];
+	(): Janitor<TKey>["destroy"];
 }
 
-export const Janitor: new <Key = unknown>() => Janitor<Key>;
+interface JanitorConstructor<TKey = unknown> {
+	new <TKey = unknown>(): Janitor<TKey>;
+}
 
-/**
- * @deprecated
- */
-export const is: typeof isJanitor;
-
-/**
- * Checks whether the value is an instance of {@link Janitor} class.
- */
-export function isJanitor(value: unknown): boolean;
+export declare const Janitor: JanitorConstructor;
